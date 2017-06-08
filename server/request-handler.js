@@ -39,7 +39,22 @@ exports.requestHandler = function(request, response) {
   // GET
   
   //TEMPORARY STORAGE
-  var STORAGE = {results: []};
+  var STORAGE = {
+    results: [{
+      username: 'Jono',
+      text: 'Do my bidding!'
+    },
+    {
+      username: 'Jono',
+      text: 'Do my bidding2!',
+      roomname: 'room1'
+    },
+    {
+      username: 'Jono',
+      text: 'Do my bidding3!',
+      roomname: 'room'
+    }]
+  };
   
   
 
@@ -55,7 +70,7 @@ exports.requestHandler = function(request, response) {
   let responseObj;
   const path = url.parse(request.url).pathname;
   console.log('PATH==' + path);
-  if (request.url !== '/classes/messages') {
+  if (path !== '/classes/messages') {
     responseObj = {};
     statusCode = 404;
     response.writeHead(statusCode, headers);
@@ -82,8 +97,11 @@ exports.requestHandler = function(request, response) {
       });
 
       response.writeHead(statusCode, headers);
-      response.end(JSON.stringify(responseObj));
+      response.end(responseObj);
       
+    } else if (requestType === 'OPTIONS') {
+      response.writeHead(statusCode, headers);
+      response.end();
     }
   }
   // The outgoing status.

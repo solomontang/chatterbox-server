@@ -32,7 +32,7 @@ var app = {
     // Poll for new messages
     setInterval(function() {
       app.fetch(true);
-    }, 3000);
+    }, 10000);
   },
 
   send: function(message) {
@@ -63,6 +63,9 @@ var app = {
       data: { order: '-createdAt' },
       contentType: 'application/json',
       success: function(data) {
+        console.log(typeof data);
+        data = JSON.parse(data);
+        console.log(data);
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
 
