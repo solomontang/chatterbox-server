@@ -11,6 +11,8 @@ this file and include it in basic-server.js so that it actually works.
 *Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
 
 **************************************************************/
+
+const url = require('url');
 var defaultCorsHeaders = {
   'access-control-allow-origin': '*',
   'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -51,6 +53,8 @@ exports.requestHandler = function(request, response) {
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = 'JSON';
   let responseObj;
+  const path = url.parse(request.url).pathname;
+  console.log('PATH==' + path);
   if (request.url !== '/classes/messages') {
     responseObj = {};
     statusCode = 404;
@@ -64,18 +68,19 @@ exports.requestHandler = function(request, response) {
       response.end(JSON.stringify(responseObj));
       
     } else if (requestType === 'POST') {
-      var statusCode = 201;
+      statusCode = 201;
 
       var body = [];
       request.on('data', function(data) {
-        console.log('got data: ', data.toString());
         body.push(data);
       }).on('end', function() {
-        body = Buffer.concat(body).toString();
+        body = JSON.parse(Buffer.concat(body).toString());
+      
         STORAGE.results.push(body);
         console.log('concat body: ', STORAGE);
+        responseObj = {body};
       });
-      responseObj = {};
+
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify(responseObj));
       
