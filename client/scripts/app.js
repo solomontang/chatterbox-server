@@ -36,6 +36,7 @@ var app = {
   },
 
   send: function(message) {
+    // console.log(message);
     app.startSpinner();
 
     // POST the message to the server
@@ -63,9 +64,8 @@ var app = {
       data: { order: '-createdAt' },
       contentType: 'application/json',
       success: function(data) {
-        console.log(typeof data);
         data = JSON.parse(data);
-        console.log(data);
+        console.log('data received:', data);
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
 
@@ -76,16 +76,16 @@ var app = {
         var mostRecentMessage = data.results[data.results.length - 1];
 
         // Only bother updating the DOM if we have a new message
-        if (mostRecentMessage.objectId !== app.lastMessageId) {
+        // if (mostRecentMessage.objectId !== app.lastMessageId) {
           // Update the UI with the fetched rooms
-          app.renderRoomList(data.results);
+        app.renderRoomList(data.results);
 
           // Update the UI with the fetched messages
-          app.renderMessages(data.results, animate);
+        app.renderMessages(data.results, animate);
 
           // Store the ID of the most recent message
-          app.lastMessageId = mostRecentMessage.objectId;
-        }
+        app.lastMessageId = mostRecentMessage.objectId;
+        // }
       },
       error: function(error) {
         console.error('chatterbox: Failed to fetch messages', error);

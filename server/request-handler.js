@@ -20,6 +20,24 @@ var defaultCorsHeaders = {
   'access-control-max-age': 10 // Seconds.
 };
 
+var STORAGE = {
+  results: [{
+    username: 'Jono',
+    text: 'Do my bidding!',
+    roomname: 'lobby'
+  },
+  {
+    username: 'Jono',
+    text: 'Do my bidding2!',
+    roomname: 'lobby'
+  },
+  {
+    username: 'Jono',
+    text: 'Do my bidding3!',
+    roomname: 'lobby'
+  }]
+};
+
 exports.requestHandler = function(request, response) {
   // Request and Response come from node's http module.
   //
@@ -39,27 +57,9 @@ exports.requestHandler = function(request, response) {
   // GET
   
   //TEMPORARY STORAGE
-  var STORAGE = {
-    results: [{
-      username: 'Jono',
-      text: 'Do my bidding!'
-    },
-    {
-      username: 'Jono',
-      text: 'Do my bidding2!',
-      roomname: 'room1'
-    },
-    {
-      username: 'Jono',
-      text: 'Do my bidding3!',
-      roomname: 'room'
-    }]
-  };
   
   
-
-
-
+  
   console.log('Serving request type ' + request.method + ' for url ' + request.url);
   // console.log('request ', request);
   // console.log('response ', response);
@@ -78,6 +78,7 @@ exports.requestHandler = function(request, response) {
   } else {
 
     if (requestType === 'GET') {
+      console.log('GET: Storage length:', STORAGE.results.length);
       responseObj = STORAGE; //<= some fxn to get array of messages from STORAGE
       response.writeHead(statusCode, headers);
       response.end(JSON.stringify(responseObj));
@@ -87,17 +88,24 @@ exports.requestHandler = function(request, response) {
 
       var body = [];
       request.on('data', function(data) {
+        console.log('data:', data.toString());
         body.push(data);
       }).on('end', function() {
-        body = JSON.parse(Buffer.concat(body).toString());
-      
-        STORAGE.results.push(body);
-        console.log('concat body: ', STORAGE);
-        responseObj = {body};
-      });
+        body = Buffer.concat(body).toString();
+        
+        body = body.split('&').join('","');
+        body = body.split('=').join('":"');
+        body = '{"' + body + '"}';
+        console.log('newbody', body);
 
-      response.writeHead(statusCode, headers);
-      response.end(responseObj);
+        
+  
+        // responseObj = {body};
+        STORAGE.results.push(JSON.parse(body));
+        console.log('concat body: ', STORAGE.results.length);
+        response.writeHead(statusCode, headers);
+        response.end(body);
+      });
       
     } else if (requestType === 'OPTIONS') {
       response.writeHead(statusCode, headers);
