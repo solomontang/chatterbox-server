@@ -35,7 +35,9 @@ exports.requestHandler = function(request, response) {
   // console.logs in your code.
 
   // GET
-
+  
+  //TEMPORARY STORAGE
+  var STORAGE = {results: []};
   
   
 
@@ -49,21 +51,35 @@ exports.requestHandler = function(request, response) {
   var headers = defaultCorsHeaders;
   headers['Content-Type'] = 'JSON';
   let responseObj;
+  if (request.url !== '/classes/messages') {
+    responseObj = {};
+    statusCode = 404;
+    response.writeHead(statusCode, headers);
+    response.end(JSON.stringify(responseObj));
+  } else {
 
-  if (requestType === 'GET') {
-    console.log('Yay! GET!');
-    responseObj = {};
-    responseObj.results = [];
-    response.writeHead(statusCode, headers);
-    response.end(JSON.stringify(responseObj));
-    
-  } else if (requestType === 'POST') {
-    console.log('Does POST');
-    var statusCode = 201;
-    responseObj = {};
-    response.writeHead(statusCode, headers);
-    response.end(JSON.stringify(responseObj));
-    
+    if (requestType === 'GET') {
+      responseObj = STORAGE; //<= some fxn to get array of messages from STORAGE
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify(responseObj));
+      
+    } else if (requestType === 'POST') {
+      var statusCode = 201;
+
+      var body = [];
+      request.on('data', function(data) {
+        console.log('got data: ', data.toString());
+        body.push(data);
+      }).on('end', function() {
+        body = Buffer.concat(body).toString();
+        STORAGE.results.push(body);
+        console.log('concat body: ', STORAGE);
+      });
+      responseObj = {};
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify(responseObj));
+      
+    }
   }
   // The outgoing status.
   // var statusCode = 200;
